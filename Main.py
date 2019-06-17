@@ -40,6 +40,7 @@ import re
 def getPage(address):
     data = urllib.request.urlopen(address)
     soup = BeautifulSoup(data, from_encoding=data.info().get_param('charset'))
+    print("Visiting Page " + str(address) + "\n")
     return soup
 
 seedSite = "https://wikipedia.org"
@@ -49,26 +50,42 @@ seedSite = "https://www.creativecommons.org/licenses/by-sa/3.0/"
 seedSite = "https://stackoverflow.com/questions/1080411/retrieve-links-from-web-page-using-python-and-beautifulsoup"
 
 
+timez = time.localtime()
+timeMarker = ''
+for item in timez[0:5]:
+    timeMarker += "_" + str(item)
+
+
 
 newStack = []
 visitedStack = [seedSite]
-masterListName = "MasterListFile.txt"
-visitedListName = "VisitedListFile.txt"
-errorsListName = "ErrorsListFile.txt"
+masterListName = "MasterListFile" + timeMarker +".txt"
+visitedListName = "VisitedListFile" + timeMarker +".txt"
+errorsListName = "ErrorsListFile" + timeMarker +".txt"
 
 pageData = getPage(seedSite)
+print("Site visited...Checking Links...")
 for link in pageData.find_all('a', href=True):
-
+    print("Found Link " )
+    print(link)
     thisLink = link['href']
+    print("extracted link" + str(thisLink))
+
     #print(thisLink)
     if thisLink not in visitedStack:
+        print("Adding it to Master List")
         wFile = open(masterListName, 'a')
         wFile.write(seedSite + " : " + thisLink + "\n")
         wFile.close()
         newStack.append(thisLink)
+    else :
+        print("Lionk is duplicate, not added to Master List")
 
-while len(visitedStack) > 0:
+print("Visiting Next Site if there is one...")
+
+while len(newStack) > 0 :
     nextSite = newStack.pop()
+    print("Going to :" + str(nextSite))
     print(nextSite)
     if nextSite not in visitedStack:
         try:
@@ -92,4 +109,7 @@ while len(visitedStack) > 0:
             wFile.write(nextSite + "\n")
             wFile.close()
             #print to errors page
+
+    else :
+        print ("Oh, it was in the list already, nvm...")
 
